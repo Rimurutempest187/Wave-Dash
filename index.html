@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05060f">
+<title>WAVE DASH</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="errPanel" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(3,5,14,.95);color:#ff8a96;font:14px/1.5 system-ui,'Trebuchet MS',sans-serif;padding:24px;overflow:auto">
+  <div style="max-width:680px;margin:0 auto;border:1px solid #ff5064;border-radius:14px;padding:18px;background:#0d0d1a">
+    <div style="font-size:18px;font-weight:700;letter-spacing:.18em;color:#ff5064;margin-bottom:8px">WAVE DASH  STARTUP ERROR</div>
+    <div id="errStage" style="color:#ffcf5d;font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px">stage: ?</div>
+    <div id="errMsg" style="color:#ffd0d6;font-size:14px;white-space:pre-wrap;word-break:break-word;margin-bottom:10px"></div>
+    <div id="errLoc" style="color:#8fa3c8;font-size:12px"></div>
+    <button onclick="location.reload()" style="margin-top:14px;background:#10142a;border:1px solid #00e5ff;color:#e8f4ff;padding:10px 18px;border-radius:10px;cursor:pointer">Reload</button>
+  </div>
+</div>
+<canvas id="cv"></canvas>
+<div id="vignette"></div><div id="flash"></div>
+
+<div id="scr-boot" class="screen active" style="justify-content:center">
+  <div class="logo">WAVE DASH</div>
+  <div class="sub" id="bootTxt">INITIALIZING...</div>
+  <div class="ldbar"><i></i></div>
+</div>
+
+<div id="scr-menu" class="screen" style="justify-content:center">
+  <div class="logo">WAVE DASH</div>
+  <div class="sub">Neon Rhythm Arcade</div>
+  <div class="row" style="margin:14px 0 6px">
+    <span class="chip">🪙 <b id="mCoins">0</b></span>
+    <span class="chip gem">💎 <b id="mDiamonds">0</b></span>
+    <span class="chip">⭐ <b id="mStars">0</b></span>
+    <span class="chip rank">🏅 <b id="mRank">Warrior</b></span>
+  </div>
+  <button class="btn primary" id="btnPlayClassic" style="margin-top:10px">▶️ PLAY</button>
+  <button class="btn" data-go="modes">MODE</button>
+  <button class="btn" data-go="garage">EQUIPMENT</button>
+  <button class="btn" data-go="shop">SHOP</button>
+  <button class="btn" data-go="ach">ACHIEVEMENTS</button>
+  <button class="btn" id="btnLeaderboard">LEADERBOARD</button>
+  <button class="btn" data-go="settings">SETTINGS</button>
+  <div class="row" style="margin-top:14px">
+    <button class="btn iconbtn" id="btnDaily" title="Daily Reward">🎁</button>
+    <button class="btn iconbtn" id="btnProfile" title="Profile">👤</button>
+    <button class="btn iconbtn" id="btnFS" title="Fullscreen">⛶</button>
+  </div>
+</div>
+
+<div id="scr-modes" class="screen">
+  <div class="spread"><button class="btn small" data-go="menu"> Back</button><h2 class="stitle" style="margin:0">SELECT MODE</h2><span style="width:80px"></span></div>
+  <div class="scroll" id="modeList" style="display:flex;flex-direction:column;align-items:center"></div>
+</div>
+
+<div id="scr-levels" class="screen">
+  <h2 class="stitle" id="lvTitle">SELECT CLASSIC LEVEL</h2>
+  <div id="lvTrack"></div>
+  <div class="row">
+    <button class="btn small" id="lvPrev"> Prev</button>
+    <button class="btn small" data-go="modes">Modes</button>
+    <button class="btn small" id="lvNext">Next </button>
+  </div>
+</div>
+
+<div id="scr-rankhub" class="screen">
+  <div class="spread"><button class="btn small" data-go="modes"> Back</button><h2 class="stitle" style="margin:0">RANK</h2><span style="width:80px"></span></div>
+  <div class="scroll" style="display:flex;flex-direction:column;align-items:center">
+    <div class="rankhero" id="rankHero"></div>
+    <button class="btn primary" id="rankPlay">▶️ PLAY</button>
+    <button class="btn" id="rankSelect">SELECT LEVEL</button>
+  </div>
+</div>
+
+<div id="scr-challenges" class="screen">
+  <div class="spread"><button class="btn small" data-go="modes"> Back</button><h2 class="stitle" style="margin:0">CHALLENGE</h2><span style="width:80px"></span></div>
+  <div class="scroll" id="chList" style="display:flex;flex-direction:column;align-items:center"></div>
+</div>
+
+<div id="scr-garage" class="screen">
+  <div class="spread"><button class="btn small" data-go="menu"> Back</button><h2 class="stitle" style="margin:0">EQUIPMENT</h2><span style="width:80px"></span></div>
+  <div class="scroll">
+    <div class="sect">Arrow Skins</div><div class="grid" id="skinGrid"></div>
+    <div class="sect">Trails</div><div class="grid" id="trailGrid"></div>
+    <div class="sect">Death Effects</div><div class="grid" id="deathGrid"></div>
+    <div class="sect">Primary Color</div><div class="row" id="swPrimary" style="justify-content:flex-start"></div>
+    <div class="sect">Secondary Color</div><div class="row" id="swSecondary" style="justify-content:flex-start"></div>
+    <div class="sect">Trail Color</div><div class="row" id="swTrail" style="justify-content:flex-start"></div>
+    <div class="sect">Glow Intensity</div>
+    <div class="row" style="justify-content:flex-start"><input type="range" id="glowRange" min="4" max="30" step="1"><b id="glowVal" class="chip"></b></div>
+  </div>
+</div>
+
+<div id="scr-shop" class="screen">
+  <div class="spread"><button class="btn small" data-go="menu"> Back</button><h2 class="stitle" style="margin:0">SHOP</h2>
+    <span class="row" style="flex-wrap:nowrap"><span class="chip">🪙 <b id="shCoins">0</b></span><span class="chip gem">💎 <b id="shGems">0</b></span></span></div>
+  <div class="scroll">
+    <div class="sect">Skins</div><div class="grid" id="shopSkins"></div>
+    <div class="sect">Trails</div><div class="grid" id="shopTrails"></div>
+    <div class="sect">Death Effects</div><div class="grid" id="shopDeaths"></div>
+    <div class="sect">Background Themes</div><div class="grid" id="shopThemes"></div>
+  </div>
+</div>
+
+<div id="scr-ach" class="screen">
+  <div class="spread"><button class="btn small" data-go="menu"> Back</button><h2 class="stitle" style="margin:0">ACHIEVEMENTS</h2><span class="chip" id="achCount">0 / 20</span></div>
+  <div class="scroll" id="achList"></div>
+</div>
+
+<div id="scr-leaderboard" class="screen">
+  <div class="spread"><button class="btn small" data-go="menu"> Back</button><h2 class="stitle" style="margin:0">LEADERBOARD</h2><span class="chip" id="lbOnline">—</span></div>
+  <div class="lbtabs" id="lbTabs"></div>
+  <div class="youbar" id="lbYou">YOUR RANK  —</div>
+  <div class="scroll" id="lbPanel" style="max-width:1100px">
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn small" id="lbRefresh">Refresh</button>
+      <button class="btn small danger" id="lbRetry" style="display:none">Retry</button>
+      <button class="btn small" id="lbMore">Load More</button>
+    </div>
+    <div id="lbHead" class="lbrow lbhead"></div>
+    <div id="lbStatus">LOADING RANKING</div>
+    <div id="lbRows"></div>
+  </div>
+</div>
+
+<div id="scr-settings" class="screen">
+  <div class="spread"><button class="btn small" id="setBack"> Back</button><h2 class="stitle" style="margin:0">SETTINGS</h2><span style="width:80px"></span></div>
+  <div class="scroll" style="max-width:560px;display:flex;flex-direction:column;align-items:center">
+    <div class="sect" style="max-width:520px;text-align:left">Controls</div>
+    <div class="set"><span class="lb"> CONTROL PRESET</span><select id="presetSel"><option value="casual">Casual</option><option value="classic">Classic</option><option value="precise">Precise</option><option value="fast">Fast</option><option value="custom">Custom</option></select></div>
+    <div class="set"><span class="lb"> CONTROL SENSITIVITY</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="sensRange" min="0.5" max="2" step="0.05"><b id="sensVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="set"><span class="lb"> VERTICAL STRENGTH</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="vStrRange" min="0.5" max="1.5" step="0.05"><b id="vStrVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="set"><span class="lb"> CONTROL SMOOTHING</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="smoothRange" min="0" max="100" step="1"><b id="smoothVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="set"><span class="lb"> MAX VERTICAL SPEED</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="maxVyRange" min="420" max="900" step="10"><b id="maxVyVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="set"><span class="lb"> WAVE STRENGTH</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="waveRange" min="420" max="760" step="10"><b id="waveVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="sect" style="max-width:520px;text-align:left">Gameplay</div>
+    <div class="set"><span class="lb"> GAME SPEED</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="gspdRange" min="0.8" max="1.2" step="0.05"><b id="gspdVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="set"><span class="lb"> CAMERA SMOOTHING</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="camSmRange" min="0" max="100" step="1"><b id="camSmVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="set"><span class="lb"> TRAIL INTENSITY</span><span class="row" style="flex-wrap:nowrap"><input type="range" id="trailFxRange" min="0.5" max="2" step="0.1"><b id="trailFxVal" style="min-width:46px;text-align:right"></b></span></div>
+    <div class="sect" style="max-width:520px;text-align:left">Visual</div>
+    <div class="set"><span class="lb"> PARTICLES</span><div class="tgl" data-set="particles"></div></div>
+    <div class="set"><span class="lb"> TRAIL EFFECTS</span><div class="tgl" data-set="trailFx"></div></div>
+    <div class="set"><span class="lb"> SCREEN SHAKE</span><div class="tgl" data-set="shake"></div></div>
+    <div class="set"><span class="lb"> REDUCED EFFECTS</span><div class="tgl" data-set="reduced"></div></div>
+    <div class="set"><span class="lb"> QUALITY</span><select id="qualitySel"><option value="auto">Auto</option><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select></div>
+    <div class="sect" style="max-width:520px;text-align:left">Audio</div>
+    <div class="set"><span class="lb"> MUSIC</span><div class="tgl" data-set="music"></div></div>
+    <div class="set"><span class="lb"> SFX</span><div class="tgl" data-set="sfx"></div></div>
+    <div class="set"><span class="lb"> VIBRATION</span><div class="tgl" data-set="vibration"></div></div>
+    <div class="sect" style="max-width:520px;text-align:left">Display</div>
+    <div class="set"><span class="lb"> FPS DISPLAY</span><div class="tgl" data-set="showFps"></div></div>
+    <button class="btn danger" id="btnReset" style="margin-top:16px">Reset Progress</button>
+  </div>
+</div>
+
+<div id="hud">
+  <div id="hudTop">
+    <div class="hudbox" id="hudLevel">LEVEL 01</div>
+    <div id="hudProgWrap"><div id="hudProg"><i></i></div><div id="hudPct">0%</div></div>
+    <div class="row" style="flex-wrap:nowrap">
+      <div class="hudbox" id="hudScore">SCORE <b>0</b><br>BEST <span id="hudBest">0</span></div>
+      <button class="btn iconbtn hudbox" id="pauseBtn" style="border-radius:12px">⏸</button>
+    </div>
+  </div>
+  <div id="hudCombo"></div>
+  <div id="hudHint" style="display:none">HOLD TO RISE  RELEASE TO FALL</div>
+</div>
+
+<div id="scr-pause" class="screen overlay">
+  <h2 class="stitle">PAUSED</h2>
+  <button class="btn primary" id="pResume">▶️ RESUME</button>
+  <button class="btn" id="pRestart">↻ RESTART</button>
+  <button class="btn" id="pSound">🔊 SOUND ON</button>
+  <button class="btn" id="pExit">⌂ BACK TO MENU</button>
+</div>
+
+<div id="scr-result" class="screen overlay">
+  <div class="big" id="rsTitle">RESULT</div>
+  <div class="rating" id="rsRating"></div>
+  <div class="newrec" id="rsRec" style="display:none"> NEW RECORD </div>
+  <div class="noreward" id="rsNoRew" style="display:none">PRACTICE · NO REWARDS</div>
+  <div id="rsBody"></div>
+  <div id="rsBtns" style="margin-top:12px;display:flex;flex-direction:column;align-items:center"></div>
+</div>
+
+<div id="scr-over" class="screen overlay">
+  <div class="big dead">DEATH</div>
+  <div class="newrec" id="overRec" style="display:none"> NEW RECORD </div>
+  <div style="margin:8px 0 4px">
+    <div class="kv"><span>Score</span><b id="ovScore">0</b></div>
+    <div class="kv"><span>Best</span><b id="ovBest">0</b></div>
+    <div class="kv"><span id="ovProgLb">Progress</span><b id="ovProg">0%</b></div>
+    <div class="kv"><span>Coins</span><b id="ovCoins">0</b></div>
+    <div class="kv"><span>Stars</span><b id="ovStars">0</b></div>
+  </div>
+  <button class="btn primary" id="ovRetry" style="margin-top:10px"> Retry</button>
+  <button class="btn" id="ovLevels">Level Select</button>
+  <button class="btn" data-go="menu">Main Menu</button>
+</div>
+
+<div id="scr-win" class="screen overlay">
+  <div class="big win">LEVEL COMPLETE!</div>
+  <div class="rating" id="winRating"></div>
+  <div class="newrec" id="winRec" style="display:none"> NEW RECORD </div>
+  <div>
+    <div class="kv"><span>Score</span><b id="wScore">0</b></div>
+    <div class="kv"><span>Best</span><b id="wBest">0</b></div>
+    <div class="kv"><span>Coins</span><b id="wCoins">0</b></div>
+    <div class="kv"><span>Stars</span><b id="wStars">0</b></div>
+    <div class="kv"><span>Diamonds</span><b id="wGems">0</b></div>
+    <div class="kv"><span>Time</span><b id="wTime">0s</b></div>
+  </div>
+  <button class="btn primary" id="wNext" style="margin-top:10px">Next Level </button>
+  <button class="btn" id="wRetry"> Retry</button>
+  <button class="btn" id="wLevels">Level Select</button>
+  <button class="btn" data-go="menu">Main Menu</button>
+</div>
+
+<div id="scr-profile" class="screen overlay">
+  <h2 class="stitle">PILOT PROFILE</h2>
+  <div class="panel" style="width:min(460px,92vw)">
+    <div class="pfrow"><span>Callsign</span><b id="pfName">Pilot</b></div>
+    <div class="pfrow"><span>Global Rank</span><b id="pfRank">—</b></div>
+    <div class="pfrow"><span>Current Rank</span><b id="pfTier">Warrior</b></div>
+    <div class="pfrow"><span>Rank Stars</span><b id="pfRankStars">0</b></div>
+    <div class="pfrow"><span>Classic Stars</span><b id="pfCStars">0</b></div>
+    <div class="pfrow"><span>Endless Best</span><b id="pfEndless">0</b></div>
+    <div class="pfrow"><span>Best Time Trial</span><b id="pfTrial">—</b></div>
+    <div class="pfrow"><span>Challenge Clears</span><b id="pfCh">0</b></div>
+    <div class="pfrow"><span>Coins</span><b id="pfCoins">0</b></div>
+    <div class="pfrow"><span>Diamonds</span><b id="pfGems">0</b></div>
+    <div class="pfrow"><span>Levels Completed</span><b id="pfDone">0</b></div>
+    <div class="pfrow"><span>Total Score</span><b id="pfScore">0</b></div>
+    <div class="pfrow"><span>Total Distance</span><b id="pfDist">0 m</b></div>
+    <div class="pfrow"><span>Achievements</span><b id="pfAch">0 / 20</b></div>
+    <div class="pfrow" style="border:none"><span>Current Skin</span><b id="pfSkin">Classic</b></div>
+  </div>
+  <div class="row" style="margin-top:14px;flex-wrap:nowrap">
+    <button class="btn small" id="pfEditName"> Edit Name</button>
+    <button class="btn small" data-go="menu">Close</button>
+  </div>
+</div>
+
+<div id="scr-daily" class="screen overlay">
+  <h2 class="stitle">DAILY REWARD</h2>
+  <div class="panel" style="text-align:center;min-width:min(320px,86vw)">
+    <div id="dailyBody" style="font-size:15px;line-height:2"></div>
+    <button class="btn primary" id="dailyClaim" style="margin-top:12px">Claim </button>
+  </div>
+  <button class="btn" data-go="menu" style="margin-top:12px">Close</button>
+</div>
+
+<div id="scr-confirm" class="screen overlay" style="z-index:40">
+  <div class="panel" style="text-align:center;max-width:min(420px,90vw)">
+    <div id="cfMsg" style="font-size:15px;line-height:1.8;margin-bottom:16px"></div>
+    <div class="row">
+      <button class="btn small" id="cfNo">Cancel</button>
+      <button class="btn small danger" id="cfYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="nameModal" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+  <div id="nameCard">
+    <h3 id="nameTitle">NEW PILOT</h3>
+    <div class="nmSub">Choose your callsign</div>
+    <input id="nameInput" maxlength="16" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pilot name" aria-label="Player name">
+    <div id="nameHint">3–16 characters · letters, numbers, spaces, . - _</div>
+    <div id="nameErr" role="alert"></div>
+    <div class="row" style="margin-top:14px;flex-wrap:nowrap">
+      <button class="btn small" id="nameCancel" style="flex:1">CANCEL</button>
+      <button class="btn small primary" id="nameOk" style="flex:1">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<div id="rotate"><div class="ph">📱</div><div class="stitle" style="font-size:20px;letter-spacing:.2em">ROTATE DEVICE</div>
+  <div style="color:var(--dim);font-size:13px">WAVE DASH plays best in landscape mode</div></div>
+<div id="toast"></div>
+<div id="debug"></div>
+<div id="fps"></div>
+
+  <script src="js/systems.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/modes.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
